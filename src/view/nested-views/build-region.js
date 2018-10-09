@@ -1,4 +1,6 @@
 import _ from 'underscore';
+import $ from 'jquery';
+
 const defaultSelector = (name, prefix = '') => prefix + 'region-' + name;
 
 function defaultUpdateDom(name, $el)
