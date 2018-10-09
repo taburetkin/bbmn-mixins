@@ -1,6 +1,7 @@
 {
-  "name": "bbmn-utils",
+  "name": "bbmn-mixins",
   "version": "1.0.0",
+  "description": "backbone and marionette mixins pack",
   "main": "lib/es/index.js",
   "module": "lib/es/index.js",
   "jsnext": "lib/es/index.js",
