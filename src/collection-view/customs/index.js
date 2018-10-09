@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import { isView, isViewClass } from 'bbmn-core';
 import { betterResult } from 'bbmn-utils';
 

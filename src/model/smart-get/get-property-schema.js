@@ -1,3 +1,4 @@
+import _ from 'underscore';
 export default function getPropertySchema(model, key)
 {
 	if (_.isFunction(model.getPropertySchema)) {

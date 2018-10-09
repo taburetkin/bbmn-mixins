@@ -1,3 +1,4 @@
+
 export default Collection => Collection.extend({
 	constructor(){
 		

@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import buildRegion from './build-region.js';
 
 export default function normalizeNestedViewContextRegion(context) {

@@ -1,4 +1,4 @@
-
+import _ from 'underscore';
 import { betterResult as result } from 'bbmn-utils';
 import { isView, isViewClass } from 'bbmn-core';
 import normalizeRegion from './normalize-region.js';

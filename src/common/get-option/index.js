@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import { betterResult as result, getOption } from 'bbmn-utils';
 
 const Mixin = Base => Base.extend({

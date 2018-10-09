@@ -1,5 +1,5 @@
 import '../setup.js';
-
+import { getOption } from 'bbmn-utils';
 import { getOptionMixin } from '../../src/index.js';
 import { View } from 'backbone.marionette';
 

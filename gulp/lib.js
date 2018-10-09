@@ -20,7 +20,7 @@ let rollupGlobals = {
 	'bbmn-utils': 'bbmn.utils',
 };
 
-let testExternals = ['backbone', 'backbone.marionette', 'underscore'];
+let testExternals = ['backbone', 'backbone.marionette', 'underscore', 'bbmn-core'];
 
 let getRollupConfig = (format, babelcfg = babelConfig) => {
 
@@ -32,7 +32,7 @@ let getRollupConfig = (format, babelcfg = babelConfig) => {
 			}),
 			babel(babelcfg)
 		],
-		external: ['backbone', 'backbone.marionette', 'underscore', "bbmn-core", "bbmn-utils"],
+		external: ['jquery', 'backbone', 'backbone.marionette', 'underscore', "bbmn-core", "bbmn-utils"],
 		output: {
 			format,
 			name: 'bbmn.mixins',
@@ -49,8 +49,8 @@ function lib(format) {
 		// note that UMD and IIFE format requires `name` but it will be inferred from the source file name `mylibrary.js`
 		.pipe(rollup(rollupConfig))
 		// save sourcemap as separate file (in the same folder)
+		.pipe(size({ title: format, showFiles: true}))
 		.pipe(sourcemaps.write(''))
-		.pipe(size())
 		.pipe(gulp.dest('lib/' + format));
 }
 

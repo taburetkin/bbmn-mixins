@@ -1,3 +1,4 @@
+import _ from 'underscore';
 export default CollectionView => CollectionView.extend({
 	_renderChildren() {
 		// If there are unrendered views prevent add to end perf

@@ -11,6 +11,7 @@ function _mocha(setupFile) {
 			reporter: 'dot',
 			globals: mochaGlobals,
 			ignoreLeaks: false,
+			require: 'babel-register'
 		}));
 }
 

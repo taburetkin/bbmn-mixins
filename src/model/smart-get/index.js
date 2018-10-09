@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import { Model } from 'bbmn-core';
 import { getByPath } from 'bbmn-utils';
 

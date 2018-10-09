@@ -1,5 +1,5 @@
-
-import { isKnownCtor } from 'bbmn-utils';
+import _ from 'underscore';
+import { isKnownCtor, mergeOptions, getOption } from 'bbmn-utils';
 
 export default Base => Base.extend({
 
@@ -9,8 +9,9 @@ export default Base => Base.extend({
 		this._initializeChildrenable(opts);
 
 	},
+
 	_initializeChildrenable(opts){
-		this.mergeOptions(opts, ['parent', 'root']);
+		mergeOptions(opts, ['parent', 'root']);
 		if (this.parent == null && this.root == null) 
 			this.root = this;
 	},
@@ -19,7 +20,7 @@ export default Base => Base.extend({
 	initializeChildren(){
 		if (this._childrenInitialized) return;
 
-		let children = this.getOption('children');
+		let children = getOption(this, 'children');
 		this._children = [];
 		_(children).each(child => this._initializeChild(child));
 
@@ -43,9 +44,9 @@ export default Base => Base.extend({
 			_.extend(options, _.omit(arg, 'Child'));
 		}
 
-		//if (!isKnownCtor(arg)) return;
+		
 
-		_.extend(options, this.getOption('childOptions'), { parent: this });
+		_.extend(options, getOption(this, 'childOptions'), { parent: this });
 		options = this.buildChildOptions(options);
 		
 		let child = this.buildChild(Child, options);
@@ -57,7 +58,7 @@ export default Base => Base.extend({
 		return options;
 	},
 	buildChild(Child, options){
-		!Child && (Child = this.getOption('defaultChildClass') || this.prototype.constructor);
+		!Child && (Child = getOption(this, 'defaultChildClass') || this.prototype.constructor);
 		return new Child(options);
 	},
 	_getChildren(items, opts = {}){

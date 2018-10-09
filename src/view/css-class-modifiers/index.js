@@ -1,4 +1,5 @@
 import { betterResult } from 'bbmn-utils';
+import _ from 'underscore';
 
 const defaultCssConfig = {
 	beforeRender: true,
