@@ -11,7 +11,7 @@ export default Base => Base.extend({
 	},
 
 	_initializeChildrenable(opts){
-		mergeOptions(opts, ['parent', 'root']);
+		mergeOptions.call(this, opts, ['parent', 'root']);
 		if (this.parent == null && this.root == null) 
 			this.root = this;
 	},
