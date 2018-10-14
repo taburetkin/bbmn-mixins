@@ -9,13 +9,14 @@ const defaultCssConfig = {
 
 export default (Base) => Base.extend({
 	constructor(){
-		if(!this.cssClassModifiers) {
-			this.cssClassModifiers = [];
-		}
 		Base.apply(this, arguments);
 		this._setupCssClassModifiers();		
 	},
 	addCssClassModifier(...modifiers){
+		if(!this.cssClassModifiers) {
+			let mods = this.getOption('cssClassModifiers') || [];
+			this.cssClassModifiers = [...mods];
+		}		
 		this.cssClassModifiers.push(...modifiers);
 	},
 	refreshCssClass(){
