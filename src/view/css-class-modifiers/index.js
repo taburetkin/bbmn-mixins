@@ -12,11 +12,17 @@ export default (Base) => Base.extend({
 		Base.apply(this, arguments);
 		this._setupCssClassModifiers();		
 	},
+	_initCssClassModifiers(){
+		if (this.hasOwnProperty('cssClassModifiers')) { return; }
+		let modifiers = [];
+		let optsModifiers = betterResult(this.options || {}, 'cssClassModifiers', { args:[this.model, this], default: [] });
+		let propsModifiers = betterResult(this, 'cssClassModifiers', { args:[this.model, this], default: [] });
+		modifiers.push(...optsModifiers);
+		modifiers.push(...propsModifiers);
+		this.cssClassModifiers = modifiers;
+	},
 	addCssClassModifier(...modifiers){
-		if(!this.cssClassModifiers) {
-			let mods = this.getOption('cssClassModifiers') || [];
-			this.cssClassModifiers = [...mods];
-		}		
+		this._initCssClassModifiers();
 		this.cssClassModifiers.push(...modifiers);
 	},
 	refreshCssClass(){
@@ -32,10 +38,9 @@ export default (Base) => Base.extend({
 	},	
 
 	_getCssClassModifiers(){
-		let optsModifiers = betterResult(this.options || {}, 'cssClassModifiers', { args:[this.model, this], default: [] });
-		let propsModifiers = betterResult(this, 'cssClassModifiers', { args:[this.model, this], default: [] });
+		this._initCssClassModifiers();
 		let className = betterResult(this, 'className', { args:[this.model, this], default: [] });
-		let modifiers = [className].concat(optsModifiers, propsModifiers);
+		let modifiers = this.cssClassModifiers.concat([className]);
 		return modifiers;
 	},
 	//override this if you need other logic
@@ -60,12 +65,6 @@ export default (Base) => Base.extend({
 		}, {});
 
 		return _.keys(classes).join(' ');
-
-		// return _.chain(classes)
-		// 	.keys(classes)
-		// 	.uniq()
-		// 	.value()
-		// 	.join(' ');
 
 	},
 
