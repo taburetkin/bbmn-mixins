@@ -16,7 +16,7 @@ export default Base => Base.extend({
 	_emptyViewSelector({ fetching, fetched }={}){
 		let wait = this.getOption('waitView');
 		let nodata = this.getOption('noDataView');
-		if(fetching && !fetched){
+		if (fetching && !fetched){
 			return wait || nodata;
 		} else {
 			return nodata;
