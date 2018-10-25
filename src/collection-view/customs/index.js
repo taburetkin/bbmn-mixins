@@ -42,8 +42,9 @@ export default Base => Base.extend({
 
 		_.each(this._renderedCustoms, view => view.destroy());
 		
-		let customs = this.getCustoms();
-		
+		let rawcustoms = this.getCustoms();
+		let customs = this._prepareCustoms(rawcustoms);
+
 		this._renderedCustoms = this.addChildViews(customs);
 
 		this.triggerMethod('customs:render');
@@ -53,7 +54,7 @@ export default Base => Base.extend({
 		this.renderCustoms();
 	},
 	getCustoms() {		
-		return this._prepareCustoms(this._customs.slice(0));
+		return _.clone(this._customs);
 	},
 	_prepareCustoms(rawcustoms){
 		return _.reduce(rawcustoms, (array, item) => {
