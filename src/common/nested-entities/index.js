@@ -115,7 +115,9 @@ export default Base => Base.extend({
 		if(!context.onEntityChange){
 			context.onEntityChange = (instance, { changeInitiator } = {}) => {
 				if (changeInitiator == this) return;
-				this.set(name, entity.toJSON(), { changeInitiator });
+				changeInitiator == null && (changeInitiator = entity);
+				let json = entity.toJSON();
+				this.set(name, json, { changeInitiator });
 			};
 		}
 		this.listenTo(entity, entityChangeEvents, context.onEntityChange);
@@ -124,9 +126,8 @@ export default Base => Base.extend({
 		if(!context.onPropertyChange) {
 			context.onPropertyChange = (instance, _newvalue, { changeInitiator }) => {
 				if (changeInitiator == this) return;
-
+				changeInitiator == null && (changeInitiator = this);
 				let val = this.get(name) || {};
-
 				if(isModel(entity)){
 					let unset = _.reduce(entity.attributes, (memo, _val, key) => {
 						if(key in val) return memo;
@@ -135,10 +136,7 @@ export default Base => Base.extend({
 					}, {});
 					entity.set(_.extend({}, val, unset), { changeInitiator });
 					entity.set(unset, { unset: true, silent: true });
-				} else {
-					entity.set(val, { unset: true, silent: true, changeInitiator });
-				}				
-
+				}			
 			};
 		}
 		this.on('change:' + name, context.onPropertyChange);
