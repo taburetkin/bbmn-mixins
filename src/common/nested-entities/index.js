@@ -11,8 +11,10 @@ export default Base => Base.extend({
 
 	// override this if you need to do something with just created entity
 	// by default here is settled change handlers
-	setupNestedEntity(key, entity){
-		this._setNestedEntityHandlers(key, entity);
+	setupNestedEntity(context){
+		if (!context.entity) return;
+		this._setNestedEntityHandlers(context);
+		this._setNestedEntityParent(context.entity, context.parentKey);
 	},
 
 	_getNestedEntity(key){
@@ -111,44 +113,57 @@ export default Base => Base.extend({
 
 		// if entity get changed outside we should keep in sync this model property value
 		if(!context.onEntityChange){
-			context.onEntityChange = (instance, { syncChange } = {}) => {
-				!syncChange && this.set(name, entity.toJSON(), { syncChange: true });
+			context.onEntityChange = (instance, { changeInitiator } = {}) => {
+				if (changeInitiator == this) return;
+				this.set(name, entity.toJSON(), { changeInitiator });
 			};
 		}
 		this.listenTo(entity, entityChangeEvents, context.onEntityChange);
 
 		// if this model property get changed outside we should keep in sync our nested entity
 		if(!context.onPropertyChange) {
-			context.onPropertyChange = (instance, _newvalue, { syncChange }) => {
-				if (syncChange) { return; }
-				let val = this.get(name);
+			context.onPropertyChange = (instance, _newvalue, { changeInitiator }) => {
+				if (changeInitiator == this) return;
+
+				let val = this.get(name) || {};
 				let unset = _.reduce(entity.attributes, (memo, _val, key) => {
 					if(key in val) return memo;
 					memo[key] = undefined;
 					return memo;
 				}, {});
-				entity.set(unset);
-				entity.clear({ silent: true });
-				entity.set(val, { syncChange: true });
-
-				
+				entity.set(_.extend({}, val, unset), { changeInitiator });
+				entity.set(unset, { unset: true, silent: true });
 			};
 		}
 		this.on('change:' + name, context.onPropertyChange);
 	},
-
-	destroy(){
-		this._disposeEntities();
-		let superDestroy = Base.prototype.destroy;
-		return superDestroy && superDestroy.apply(this, arguments);
+	_setNestedEntityParent(entity, parentKey){
+		parentKey || (parentKey = 'parent');
+		entity[parentKey] = this;
 	},
-
-	_disposeEntities(){
-		_.each(this._nestedEntities, context => this._disposeEntity(context));
+	_unsetNestedEntityParent(entity, parentKey){
+		parentKey || (parentKey = 'parent');
+		delete entity[parentKey];
+	},
+	destroy(){
+		this.dispose({ destroying: true });
+		let destroy = Base.prototype.destroy;
+		return destroy && destroy.apply(this, arguments);
+	},
+	dispose(opts){
+		this._disposeEntities(opts);
+		let dispose = Base.prototype.dispose;		
+		return dispose && dispose.apply(this, arguments);
+	},
+	_disposeEntities(opts){
+		_.each(this._nestedEntities, context => this._disposeEntity(context, opts));
 		delete this._nestedEntities;
 	},
-	_disposeEntity({ entity, name, onEntityChange, onPropertyChange } = {}){
+	_disposeEntity({ entity, name, onEntityChange, onPropertyChange, parentKey } = {}, { destroying } = {}){
 		this.stopListening(entity, null, onEntityChange);
 		this.off('change:'+ name, onPropertyChange);
-	}
+		this._unsetNestedEntityParent(entity, parentKey);
+		let method = destroying ? 'destroy' : 'dispose';
+		entity[method] && entity[method]();
+	},
 });

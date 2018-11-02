@@ -1,6 +1,7 @@
 import _ from 'underscore';
-import { betterResult as result, getOption } from 'bbmn-utils';
+import { betterResult as result, getOption, mergeOptions } from 'bbmn-utils';
 
+// previous version, deprecated
 const Mixin = Base => Base.extend({
 
 	//property first approach
@@ -58,4 +59,15 @@ Mixin.defaults = {
 	force: true
 };
 
-export default Mixin;
+//export default Mixin;
+
+export default Base => Base.extend({
+	getOption(){
+		return getOption(this, ...arguments);
+	},
+	hasOption(key){
+		let opts = this.options || {};
+		return (opts[key] != null) || (this[key] != null);
+	},
+	mergeOptions
+});
