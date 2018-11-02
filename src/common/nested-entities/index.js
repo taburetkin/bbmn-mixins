@@ -1,4 +1,4 @@
-import { betterResult, isCollection, isModelClass, isCollectionClass } from 'bbmn-utils';
+import { betterResult, isCollection, isModel, isModelClass, isCollectionClass } from 'bbmn-utils';
 import { Model, Collection } from 'bbmn-core';
 import _ from 'underscore';
 export default Base => Base.extend({
@@ -115,9 +115,6 @@ export default Base => Base.extend({
 		if(!context.onEntityChange){
 			context.onEntityChange = (instance, { changeInitiator } = {}) => {
 				if (changeInitiator == this) return;
-				if (changeInitiator == null) {
-					changeInitiator = instance;
-				}
 				this.set(name, entity.toJSON(), { changeInitiator });
 			};
 		}
@@ -129,13 +126,19 @@ export default Base => Base.extend({
 				if (changeInitiator == this) return;
 
 				let val = this.get(name) || {};
-				let unset = _.reduce(entity.attributes, (memo, _val, key) => {
-					if(key in val) return memo;
-					memo[key] = undefined;
-					return memo;
-				}, {});
-				entity.set(_.extend({}, val, unset), { changeInitiator });
-				entity.set(unset, { unset: true, silent: true });
+
+				if(isModel(entity)){
+					let unset = _.reduce(entity.attributes, (memo, _val, key) => {
+						if(key in val) return memo;
+						memo[key] = undefined;
+						return memo;
+					}, {});
+					entity.set(_.extend({}, val, unset), { changeInitiator });
+					entity.set(unset, { unset: true, silent: true });
+				} else {
+					entity.set(val, { unset: true, silent: true, changeInitiator });
+				}				
+
 			};
 		}
 		this.on('change:' + name, context.onPropertyChange);
