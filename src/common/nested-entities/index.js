@@ -115,6 +115,9 @@ export default Base => Base.extend({
 		if(!context.onEntityChange){
 			context.onEntityChange = (instance, { changeInitiator } = {}) => {
 				if (changeInitiator == this) return;
+				if (changeInitiator == null) {
+					changeInitiator = instance;
+				}
 				this.set(name, entity.toJSON(), { changeInitiator });
 			};
 		}
