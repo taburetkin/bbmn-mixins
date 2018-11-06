@@ -3,6 +3,7 @@ import improvedFetchMixin from './improved-fetch/index.js';
 import childrenableMixin from './childrenable/index.js';
 import nestedEntitiesMixin from './nested-entities';
 import optionsMixin from './options';
+import urlPatternMixin from './url-pattern';
 export {
-	optionsMixin, improvedFetchMixin, childrenableMixin, nestedEntitiesMixin
+	optionsMixin, improvedFetchMixin, childrenableMixin, nestedEntitiesMixin, urlPatternMixin
 };
