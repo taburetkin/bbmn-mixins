@@ -1,4 +1,4 @@
-import _ from 'underscore';
+
 import { isModelClass, isCollectionClass, getByPath, betterResult } from 'bbmn-utils';
 
 function urlError() {
@@ -9,10 +9,10 @@ function mixinError(){
 	throw new Error('This mixin can be applied only on Model or Collection');
 }
 
-function getUrlPattern(){
+function getUrlPattern(options){
 	let path = betterResult(this, 'urlPattern', { args: [this], default:'' });
 	return path.replace(/\{([^}]+)\}/g, (match, group) => {
-		let value = getByPath(this, group);
+		let value = getByPath(this, group, options);
 		return value;
 	});
 }
@@ -23,7 +23,7 @@ const ModelMixin = Base => Base.extend({
 		let base =
         betterResult(this, 'urlRoot', { args:[this]}) ||
 		betterResult(this.collection, 'url', { args:[this]}) ||
-		this.getUrlPattern();
+		this.getUrlPattern({ includeModelProperty: true });
 		return base;
 	},
 	url(){
