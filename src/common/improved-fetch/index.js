@@ -1,4 +1,4 @@
-
+import _ from 'underscore';
 export default Base => Base.extend({
 	constructor(){
 		
@@ -42,5 +42,12 @@ export default Base => Base.extend({
 			let promise = this._fetchingPromise = Base.prototype.fetch.apply(this, arguments);
 			return promise;
 		}
-	}
+	},
+	fetchIfNot(opts){
+		if(this.isFetched()){
+			return Promise.resolve();
+		} else {
+			return this.fetch(_.extend({ concurrent: 'first', opts }));
+		}
+	},
 });
