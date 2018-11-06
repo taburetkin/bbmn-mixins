@@ -5,6 +5,10 @@ function urlError() {
 	throw new Error('A "url" property or function must be specified');
 }
 
+function mixinError(){
+	throw new Error('This mixin can be applied only on Model or Collection');
+}
+
 function getUrlPattern(){
 	let path = betterResult(this, 'urlPattern', { args: [this], default:'' });
 	return path.replace(/\{([^}]+)\}/g, (match, group) => {
@@ -17,8 +21,8 @@ const ModelMixin = Base => Base.extend({
 	getUrlPattern,
 	getBaseUrl(){
 		let base =
-        _.result(this, 'urlRoot') ||
-		_.result(this.collection, 'url') ||
+        betterResult(this, 'urlRoot', { args:[this]}) ||
+		betterResult(this, 'url', { args:[this]}) ||
 		this.getUrlPattern();
 		return base;
 	},
@@ -43,15 +47,12 @@ const CollectionMixin = Base => Base.extend({
 	getUrlPattern
 });
 
-function throwError(){
-	throw new Error('This mixin can be applied only on Model or Collection');
-}
 
 export default Base => {
 
 	const mixin = isModelClass(Base) ? ModelMixin(Base)
 		: isCollectionClass(Base) ? CollectionMixin(Base)
-			: throwError();
+			: mixinError();
 
 	return mixin;
 	
