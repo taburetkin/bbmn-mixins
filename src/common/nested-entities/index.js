@@ -1,4 +1,4 @@
-import { betterResult, isCollection, isModel, isModelClass, isCollectionClass } from 'bbmn-utils';
+import { betterResult, isCollection, isModel, isModelClass, isCollectionClass, clone } from 'bbmn-utils';
 import { Model, Collection } from 'bbmn-core';
 import _ from 'underscore';
 export default Base => Base.extend({
@@ -92,7 +92,7 @@ export default Base => Base.extend({
 				}				
 			}
 
-			memo[name] = context;
+			memo[name] = clone(context, { functions: true });
 
 		});
 
