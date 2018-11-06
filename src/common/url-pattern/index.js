@@ -22,7 +22,7 @@ const ModelMixin = Base => Base.extend({
 	getBaseUrl(){
 		let base =
         betterResult(this, 'urlRoot', { args:[this]}) ||
-		betterResult(this, 'url', { args:[this]}) ||
+		betterResult(this.collection, 'url', { args:[this]}) ||
 		this.getUrlPattern();
 		return base;
 	},
