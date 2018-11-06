@@ -116,8 +116,12 @@ export default Base => Base.extend({
 			context.onEntityChange = (instance, { changeInitiator } = {}) => {
 				if (changeInitiator == this) return;
 				changeInitiator == null && (changeInitiator = entity);
-				let json = entity.toJSON();
-				this.set(name, json, { changeInitiator });
+				let json = entity.toJSON();				
+				if (context.saveOnChange && !this.isNew()) {
+					this.save(name, json, { changeInitiator });
+				} else {
+					this.set(name, json, { changeInitiator });
+				}
 			};
 		}
 		this.listenTo(entity, entityChangeEvents, context.onEntityChange);
