@@ -1,12 +1,12 @@
 import _ from 'underscore';
-import { isModelClass, isCollectionClass, getByPath } from 'bbmn-utils';
+import { isModelClass, isCollectionClass, getByPath, betterResult } from 'bbmn-utils';
 
 function urlError() {
 	throw new Error('A "url" property or function must be specified');
 }
 
 function getUrlPattern(){
-	let path = this.urlPattern || '';
+	let path = betterResult(this, 'urlPattern', { args: [this], default:'' });
 	return path.replace(/\{([^}]+)\}/g, (match, group) => {
 		let value = getByPath(this, group);
 		return value;
@@ -36,7 +36,7 @@ const ModelMixin = Base => Base.extend({
 
 const CollectionMixin = Base => Base.extend({
 	url(){
-		if(_.has(this, 'urlPattern')) {
+		if (this.urlPattern) {			
 			return this.getUrlPattern();
 		}
 	},
