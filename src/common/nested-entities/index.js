@@ -5,8 +5,8 @@ export default Base => Base.extend({
 	
 	// usage:
 	// model.entity('users');
-	entity(key){
-		return this._getNestedEntity(key);
+	entity(key, options){
+		return this._getNestedEntity(key, options);
 	},
 
 	// override this if you need to do something with just created entity
@@ -17,7 +17,7 @@ export default Base => Base.extend({
 		this._setNestedEntityParent(context.entity, context.parentKey);
 	},
 
-	_getNestedEntity(key){
+	_getNestedEntity(key, options){
 		//get sure there is a nestedEntities store initialized;
 		this._initEntitiesStore();
 		// compiling passed `nestedEntities` contexts, occurs only at first call
@@ -26,14 +26,14 @@ export default Base => Base.extend({
 		let context = this._nestedEntities[key];
 		if (!context) { return; }
 		if (!context.entity && !context._compiled) {
-			context.entity = this._buildNestedEntity(context);
+			context.entity = this._buildNestedEntity(context, options);
 			if (context.entity) {
 				this.setupNestedEntity(context);
 			}
 		}
 		return context.entity;
 	},
-	_buildNestedEntity(context){
+	_buildNestedEntity(context, options){
 		let data = this.get(context.name);
 		if (_.isFunction(context.build)) {
 			context.entity = context.build.call(this, data, context, this);
@@ -41,8 +41,14 @@ export default Base => Base.extend({
 			let args = context.args;
 			if (!args) {
 				args = [data];
-				if(context.options) {
-					args.push(context.options);
+				if (context.parse) {
+					if(!options) options = {};
+					if(!('parse' in options)){
+						options.parse = context.parse;
+					}
+				}
+				if(options || context.options) {
+					args.push(_.extend({}, context.options, options));
 				}
 			}
 			context.entity = new context.class(...args);
