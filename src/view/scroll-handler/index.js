@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-export default (Base) => Base.extend({
+export default Base => Base.extend({
 	constructor(){
 		Base.apply(this, arguments);
 		this._initializeScrollHandler();
@@ -14,9 +14,12 @@ export default (Base) => Base.extend({
 		};
 		this._scrollHandler = _.bind(this._scrollHandler, this);
 		this.on({
-			'attach scroll:handling:on': () => this.delegateEvents({
-				'scroll': this._scrollHandler
-			}),
+			'attach scroll:handling:on': () => {
+				this._scrollHandler();
+				this.delegateEvents({
+					'scroll': this._scrollHandler
+				});
+			},
 			'detach scroll:handling:off': () => this.undelegateEvents({
 				'scroll': this._scrollHandler
 			}),
