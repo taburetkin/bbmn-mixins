@@ -1,97 +1,107 @@
 import _ from 'underscore';
+import $ from 'jquery';
+import { normalizeMethods } from 'backbone.marionette';
+
+import { camelCase } from 'bbmn-utils';
 
 export default Base => Base.extend({
+	triggerScrollEvents: false,
+	
 	constructor(){
 		Base.apply(this, arguments);
 		this._initializeScrollHandler();
 		this.addCssClassModifier('scrollable');
 	},
 
+
+
 	_initializeScrollHandler(){
-		this._shdata = {
-			dim: {},
-			off: {}
+
+		let scrollDelegate = {
+			'scroll': this._scrollHandler.bind(this)
 		};
-		this._scrollHandler = _.bind(this._scrollHandler, this);
 		this.on({
-			'attach scroll:handling:on': () => {
-				this._scrollHandler();
-				this.delegateEvents({
-					'scroll': this._scrollHandler
-				});
-			},
-			'detach scroll:handling:off': () => this.undelegateEvents({
-				'scroll': this._scrollHandler
-			}),
-			'render render:children edges:clear': this._clearEdges
+			'attach': () => this.delegateEvents(scrollDelegate),
+			'detach': () => this.undelegateEvents(scrollDelegate),
 		});
+		let events = this.getOption('scrollEvents', { args: [ this ] });
+		this.addScrollEvents(events);
+	},
+	scrollToStart(){
+		let el = this.getScrollElement();
+		el.scrollTop = 0;
+		el.scrollLeft = 0;
+	},
+	addScrollEvents(events){
+		let hash = normalizeMethods(this, events);
+		this._scrollEvents = _.extend({}, this._scrollEvents, hash);
 	},
 
 	_scrollHandler(){
-		let scroll = this.getScrollPosition();
-		let edges = this.checkElementEdge(scroll);
-		this._tryTriggerEdges(edges);
+		let info = this.getElementInfo();
+		this.tryRegisterEdgeHit(info, 'bottom');
+		this.tryRegisterEdgeHit(info, 'right');
 	},
-
-	getScrollPosition(){
+	tryRegisterEdgeHit(info, edge){
+		let scroll = info[camelCase('scroll', edge)];
+		let end = info[camelCase('scroll', edge, 'end')];
+		if (scroll >= end && !this.isEdgeHited(edge)) {
+			this._triggerEdge(edge);
+		}
+	},
+	edgeHitKey:'_scrollHandler.edge',
+	isEdgeHited(edge){
+		let key = this.edgeHitKey + '.' + edge;
+		return this[key] === true;
+	},
+	setEdgeHit(edge, arg = true){
+		let key = this.edgeHitKey + '.' + edge;
+		return this[key] = arg;
+	},
+	getScrollElement(){
+		if (!this._scrollElement) {
+			let el = this.getOption('scrollElement', { args: [ this ]});
+			if(el instanceof Element){
+				this._scrollElement;
+			} else if(el == null) {
+				this._scrollElement = this.el;
+			} else if (el.jquery){
+				this._scrollElement = el[0];
+			}
+		}
+		return this._scrollElement;
+	},	
+	getElementInfo(){
+		let el = this.getScrollElement();
+		let $el = $(el);
+		let width = $el.outerWidth();
+		let height = $el.outerHeight();
+		let scrollBottomEnd = el.scrollHeight - Math.floor(height / 2);
+		let scrollRightEnd = el.scrollWidth - Math.floor(width / 2);
 		return {
-			left: this.$el.scrollLeft(),
-			top: this.$el.scrollTop()
+			width, height,
+			scrollBottomEnd, scrollRightEnd,
+			scrollBottom: el.scrollTop + height,
+			scrollRight: el.scrollLeft + width,
 		};
 	},
-	checkElementEdge(position){
-		let edges = this.getElementEdges();
-		let left = edges.left - position.left;
-		let top = edges.top - position.top;
-		if(left < 300) left = 0;
-		if(top < 300) top = 0;
-		return { left, top };
+
+	clearScrollEdges(){
+		this.setEdgeHit('bottom', false);
+		this.setEdgeHit('right', false);
 	},
 
-	getElementEdges(){
-		let left = this._shdata.dim.width;
-		if(left == null){
-			left = this._shdata.dim.width = this.$el.get(0).scrollWidth - this.$el.width();
+	_triggerEdge(edge){
+		this.setEdgeHit(edge);
+		if(this._scrollEvents) {
+			let handler = this._scrollEvents[`${edge}:edge`];
+			handler && handler.call(this);
 		}
-		let top = this._shdata.dim.height;
-		if(top == null){
-			top = this._shdata.dim.height = this.$el.get(0).scrollHeight - this.$el.height();
+		if(this.getOption('triggerScrollEvents') != false) {
+			this.triggerMethod('scrolled:to:' + edge);
 		}
-		return { left, top };
-	},
-	_clearEdges(){
-		delete this._shdata.dim.width;
-		delete this._shdata.dim.height;
-	},
-
-
-
-	_tryTriggerEdges(edges){
-		let shouldTrigger = {};
-		let elementEdges = this.getElementEdges();
-		if(!edges.left)
-			shouldTrigger.right = elementEdges.left;
-
-		if(!edges.top)
-			shouldTrigger.bottom = elementEdges.top;
-
-		if(!_.size(shouldTrigger)) return;
-
-		_(shouldTrigger).each((offset, edge) => {
-			this._triggerEdge(edge, offset);
-		});
-
-	},
-	_triggerEdge(edge, offset){
-		
-		let storedOffset = this._shdata.off[edge];
-
-		if(storedOffset != null && storedOffset >= offset) {
-			return;
-		}
-
-		this.triggerMethod('scrolled:to:' + edge);
-		this._shdata.off[edge] = offset;
 	},
 
 });
+
+
