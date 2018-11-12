@@ -23,27 +23,10 @@ export default Base => Base.extend({
 			'detach scroll:handling:off': () => this.undelegateEvents({
 				'scroll': this._scrollHandler
 			}),
-			'edges:clear': this._clearEdges
+			'render render:children edges:clear': this._clearEdges
 		});
 	},
 
-
-	/*getScrollEdges(){
-		return {
-			left: this.$el.get(0).scrollWidth,
-			top: this.$el.get(0).scrollHeight
-		};
-	},
-	getScrollVariants(){
-		let edges = this.getScrollEdges();
-		let result = {
-			left: edges.left <= Math.round(this.$el.outerWidth()),
-			top: edges.top <= Math.round(this.$el.outerHeight())
-		};
-		return result;
-	},*/
-
-	
 	_scrollHandler(){
 		let scroll = this.getScrollPosition();
 		let edges = this.checkElementEdge(scroll);
