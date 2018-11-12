@@ -4,6 +4,7 @@ export default (Base) => Base.extend({
 	constructor(){
 		Base.apply(this, arguments);
 		this._initializeScrollHandler();
+		this.addCssClassModifier('scrollable');
 	},
 
 	_initializeScrollHandler(){
