@@ -23,8 +23,8 @@ export default Base => Base.extend({
 	},
 	fetchNext({ onlyIfNotFetching }={}){
 		let collection = this.getCollection();
-		if(!collection) return;
-		if (onlyIfNotFetching && collection.isFetching()) return;
+		if(!collection) return Promise.resolve();
+		if (onlyIfNotFetching && collection.isFetching()) return Promise.resolve(collection);
 		return collection.fetchNext ? collection.fetchNext() : collection.fetch();
 	},
 });
