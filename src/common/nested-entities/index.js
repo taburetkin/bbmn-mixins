@@ -38,6 +38,7 @@ export default Base => Base.extend({
 		if (_.isFunction(context.build)) {
 			context.entity = context.build.call(this, data, context, this);
 		} else {
+			data = data || context.data;
 			let args = context.args;
 			if (!args) {
 				args = [data];

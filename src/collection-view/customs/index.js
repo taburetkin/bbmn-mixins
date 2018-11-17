@@ -116,9 +116,9 @@ export default Base => Base.extend({
 		}
 	},
 	_setupCustom(view){
-		this.setupCustom(view);
+		return this.setupCustom(view);
 	},
-	setupCustom: _.noop,
+	setupCustom: view => view,
 	addChildViews(children = []){
 		if (!children.length) { return; }
 
