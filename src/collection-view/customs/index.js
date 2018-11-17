@@ -9,7 +9,6 @@ export default Base => Base.extend({
 	renderCollection: true,
 
 	constructor(){
-		this._customs = [];		
 		Base.apply(this, arguments);
 		if (this.getOption('renderCollection') === false && this.collection) {
 			this._collection = this.collection;
@@ -17,8 +16,25 @@ export default Base => Base.extend({
 		}
 		this._initializeCustoms();
 	},
+	_getCustomsArray(){
+		if (!this._customs)
+			this._customs = [];
+		return this._customs;
+	},
 	getCollection(){
 		return this.collection || this._collection;
+	},
+	clearCustoms(){
+		let arr = this._getCustomsArray();
+		arr.length = 0;
+	},
+	addCustom(...args){
+		let arr = this._getCustomsArray();
+		arr.push(...args);
+	},
+	unshiftCustom(...args){
+		let arr = this._getCustomsArray();
+		arr.unshift(...args);
 	},
 	_initializeCustoms(){
 
@@ -31,7 +47,8 @@ export default Base => Base.extend({
 		} else {
 			add = instanceCustoms || optionsCustoms || [];
 		}
-		this._customs.push(...add);
+
+		this.addCustom(...add);
 
 		if (this.getOption('renderAllCustoms')) {
 			this.on('render', this._renderCustoms);
@@ -41,8 +58,8 @@ export default Base => Base.extend({
 		this.triggerMethod('before:customs:render');
 
 		_.each(this._renderedCustoms, view => view.destroy());
-		
-		let rawcustoms = this.getCustoms();
+		let registered = this._getCustoms();
+		let rawcustoms = this.getCustoms(registered);
 		let customs = this._prepareCustoms(rawcustoms);
 
 		this._renderedCustoms = this.addChildViews(customs);
@@ -53,8 +70,12 @@ export default Base => Base.extend({
 		if (!this.getOption('renderAllCustoms')) return;
 		this.renderCustoms();
 	},
-	getCustoms() {		
-		return _.clone(this._customs);
+	_getCustoms() {
+		let arr = this._getCustomsArray();
+		return _.clone(arr);
+	},
+	getCustoms(customs) {		
+		return customs;
 	},
 	_prepareCustoms(rawcustoms){
 		return _.reduce(rawcustoms, (array, item) => {
