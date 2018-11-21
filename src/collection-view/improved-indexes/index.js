@@ -21,10 +21,10 @@ export default CollectionView => CollectionView.extend({
 	},
 	_addChild(view, index){
 		view._isModelView = arguments.length === 1;
+		if(_.isObject(index)) {
+			index = index.index;
+		}
 		if (index != null) {
-			if(_.isObject(index)) {
-				index = index.index;
-			}
 			view._index = index;
 		}
 		return CollectionView.prototype._addChild.apply(this, arguments);
