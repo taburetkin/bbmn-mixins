@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import { betterResult } from 'bbmn-utils';
 export default Base => Base.extend({
 	defaultWait: false,
 	saveReturnPromise: false,
@@ -18,6 +19,16 @@ export default Base => Base.extend({
 		if(!_.has(options, 'patch')) {
 			options.patch = this.patchInsteadSave;
 		}
+
+		if(options.addToUrl){
+			let url = betterResult(this, 'url', { args: [ options ] });
+			if (url) {
+				url + '/' + options.addToUrl;
+				options.url = url;
+			}
+		}
+
+
 		const save = Base.prototype.save.call(this, attrs, options);
 		if (!this.saveReturnPromise) {
 			return save;
