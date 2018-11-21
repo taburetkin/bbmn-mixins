@@ -31,10 +31,6 @@ export default CollectionView => CollectionView.extend({
 	},
 	_viewComparator(v1,v2){
 		let res = v1._index - v2._index;
-		if(isNaN(res)) {
-			res = v1._index < v2._index;
-			!res && (v1._index < v2._index)
-		}
 		if (res) return res;
 		if (v1._isModelView) return 1;
 		return -1;
