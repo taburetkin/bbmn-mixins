@@ -23,7 +23,7 @@ export default Base => Base.extend({
 		if(options.addToUrl){
 			let url = betterResult(this, 'url', { args: [ options ] });
 			if (url) {
-				url + '/' + options.addToUrl;
+				url += '/' + options.addToUrl;
 				options.url = url;
 			}
 		}
