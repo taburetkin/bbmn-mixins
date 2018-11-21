@@ -1,3 +1,4 @@
+import _ from 'underscore';
 function rebuildIndexes() {
 	if (!this.getOption('shouldRebuildIndexes') || !this.collection) {
 		return;
@@ -21,12 +22,19 @@ export default CollectionView => CollectionView.extend({
 	_addChild(view, index){
 		view._isModelView = arguments.length === 1;
 		if (index != null) {
+			if(_.isObject(index)) {
+				index = index.index;
+			}
 			view._index = index;
 		}
 		return CollectionView.prototype._addChild.apply(this, arguments);
 	},
 	_viewComparator(v1,v2){
 		let res = v1._index - v2._index;
+		if(isNaN(res)) {
+			res = v1._index < v2._index;
+			!res && (v1._index < v2._index)
+		}
 		if (res) return res;
 		if (v1._isModelView) return 1;
 		return -1;
