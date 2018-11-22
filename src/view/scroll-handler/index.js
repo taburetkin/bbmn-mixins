@@ -6,7 +6,7 @@ import { camelCase } from 'bbmn-utils';
 
 export default Base => Base.extend({
 	triggerScrollEvents: false,
-	
+	scrollHandlingEnabled: true,
 	constructor(){
 		Base.apply(this, arguments);
 		this._initializeScrollHandler();

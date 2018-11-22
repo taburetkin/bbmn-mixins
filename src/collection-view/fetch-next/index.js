@@ -3,7 +3,7 @@ export default Base => Base.extend({
 	constructor(){
 		Base.apply(this, arguments);
 		let scrollEdge = this.getOption('fetchNextEdge');
-		if(scrollEdge){
+		if (scrollEdge) {
 			let event = scrollEdge + ':edge';
 			this.addScrollEvents({
 				[event](){
