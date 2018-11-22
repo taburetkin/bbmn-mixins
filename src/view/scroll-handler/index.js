@@ -16,7 +16,9 @@ export default Base => Base.extend({
 
 
 	_initializeScrollHandler(){
-
+		if (!this.getOption('scrollHandlingEnabled')) {
+			return;
+		}
 		let scrollDelegate = {
 			'scroll': this._scrollHandler.bind(this)
 		};
