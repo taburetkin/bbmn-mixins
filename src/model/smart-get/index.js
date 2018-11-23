@@ -19,9 +19,12 @@ export default Base => {
 		get(key, opts = {}){
 			if(key == null || key == '') return;	
 			
-			let value = 'value' in opts 
-				? opts.value
-				: this.getByPath.call(this, key);
+			let value;
+			if('value' in opts) {
+				value = opts.value;
+			} else {
+				value = opts.byPath !== false ? this.getByPath.call(this, key) : originalGet.call(this, key);
+			}
 
 			if (!_.size(opts)) {
 				return value;
