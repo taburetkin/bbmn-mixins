@@ -71,9 +71,10 @@ export default Base => Base.extend({
 			delete opts.filter;
 
 		let result = [];
+		let force = opts.force;
 		_(items).each((item, index) => {
 
-			if(!this._childFilter(item, index, opts))
+			if(!force && !this._childFilter(item, index, opts))
 				return;
 
 			if(_.isFunction(map))
