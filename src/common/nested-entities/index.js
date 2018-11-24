@@ -121,8 +121,11 @@ export default Base => Base.extend({
 		// if entity get changed outside we should keep in sync this model property value
 		if(!context.onEntityChange){
 			context.onEntityChange = (instance, { changeInitiator } = {}) => {
+				
 				if (changeInitiator == this) return;
+
 				changeInitiator == null && (changeInitiator = entity);
+
 				let json = entity.toJSON();				
 				if (context.saveOnChange && !this.isNew()) {
 					this.save(name, json, { changeInitiator });
@@ -139,7 +142,7 @@ export default Base => Base.extend({
 				if (changeInitiator == this) return;
 				changeInitiator == null && (changeInitiator = this);
 				let val = this.get(name) || {};
-				if(isModel(entity)){
+				if (isModel(entity) && changeInitiator != entity) {
 					let unset = _.reduce(entity.attributes, (memo, _val, key) => {
 						if(key in val) return memo;
 						memo[key] = undefined;
@@ -147,7 +150,12 @@ export default Base => Base.extend({
 					}, {});
 					entity.set(_.extend({}, val, unset), { changeInitiator });
 					entity.set(unset, { unset: true, silent: true });
-				}			
+
+				} else if( isCollection(entity) && changeInitiator != entity) {
+
+					entity.set(val, { changeInitiator });
+
+				}
 			};
 		}
 		this.on('change:' + name, context.onPropertyChange);
