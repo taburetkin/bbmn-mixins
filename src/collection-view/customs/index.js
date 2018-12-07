@@ -86,17 +86,25 @@ export default Base => Base.extend({
 		},[]);
 	},
 	_prepareCustom(arg){
-		if (_.isFunction(arg)) {
-			return this._prepareCustom(arg.call(this, this));
-		} else if (_.isArray(arg)) {
+		if (_.isArray(arg)) {
 			return arg;
-		} else {
+		}
+		if (isView(arg) || isViewClass(arg)) {
 			return [arg, { index: 0 }];
 		}
+		if (_.isFunction(arg)) {
+			return this._prepareCustom(arg.call(this, this));
+		}
+		return [arg, { index: 0 }];
+		// if (_.isArray(arg)) {
+		// 	return arg;
+		// } else {
+		// 	return [arg, { index: 0 }];
+		// }
 	},
 	buildCustom(view, options = {}){ 
 		if (isViewClass(view)) {
-			let childOptions = this.getOption('customViewOptions');
+			let childOptions = this.getOption('customViewOptions', { args: [ this ]});
 			view = new view(childOptions);
 		} else if (_.isFunction(view)) {
 			view = view.call(this, this);
