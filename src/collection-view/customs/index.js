@@ -103,18 +103,18 @@ export default Base => Base.extend({
 		// }
 	},
 	buildCustom(view, options = {}){ 
+		let childOptions = this.getOption('customViewOptions', { args: [ this ]});
 		if (isViewClass(view)) {
-			let childOptions = this.getOption('customViewOptions', { args: [ this ]});
 			view = new view(childOptions);
 		} else if (_.isFunction(view)) {
-			view = view.call(this, this);
+			view = view.call(this, this, childOptions);
 		} else if(!isView(view) && _.isObject(view) && 'view' in view) {
 			if(isView(view.view)) {
 				if(_.isObject(view.options))
 					options = view.options;
 				view = view.view;
 			} else if(isViewClass(view.view)) {
-				let viewOptions = view.options;
+				let viewOptions = _.extend({}, childOptions, view.options);
 				view = new view.view(viewOptions);
 			}
 		}
