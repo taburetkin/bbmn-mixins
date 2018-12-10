@@ -6,3 +6,4 @@ import scrollHandlerMixin from './scroll-handler';
 export {
 	cssClassModifiersMixin, nestedViewsMixin, destroyViewMixin , buildViewByKeyMixin, scrollHandlerMixin
 };
+export * from './sortable-behavior';
