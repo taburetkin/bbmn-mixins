@@ -114,7 +114,7 @@ export default Base => Base.extend({
 					options = view.options;
 				view = view.view;
 			} else if(isViewClass(view.view)) {
-				let options = betterResult(view, 'options', { context: this, args: [this, childOptions]})
+				let options = betterResult(view, 'options', { context: this, args: [this, childOptions]});
 				let viewOptions = _.extend({}, childOptions, options);
 				view = new view.view(viewOptions);
 			}
