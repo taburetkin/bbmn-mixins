@@ -4,6 +4,8 @@ import { Behavior } from 'backbone.marionette';
 import { Collection } from 'bbmn-core';
 
 
+
+
 export const SortableBehavior = Behavior.extend({
 
 	//for move anchor, in our case whole view is anchor
@@ -16,7 +18,7 @@ export const SortableBehavior = Behavior.extend({
 		let selector = this.getOption('selector');
 
 		//in case if there is a special childNode as anchor
-		view.$el.on('mousedown', selector, e => this.startDragSort(e,view));	
+		view.$el.on('mousedown', selector, e => this.startDragSort(e,view));			
 		view.$el.on('mouseenter', e => this.handleMouseEnter(e, view));
 
 	},
@@ -29,10 +31,11 @@ export const SortableBehavior = Behavior.extend({
 		this.view.triggerMethod('drag:swap:views', this.orderingItem, view);
 	},
 
-	startDragSort(event, child){
+	startDragSort(event, child, touchable){
 		this.orderingItem = child;
 		//mouse up can happens outside.
-		$(document).one('mouseup', e => this.stopDragSort(e));
+		
+		$(document).one('mouseup', e => this.stopDragSort(e, touchable));
 		this.view.triggerMethod('before:drag:sort', child);
 	},
 	stopDragSort(){

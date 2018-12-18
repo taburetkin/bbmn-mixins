@@ -7,3 +7,4 @@ export {
 	cssClassModifiersMixin, nestedViewsMixin, destroyViewMixin , buildViewByKeyMixin, scrollHandlerMixin
 };
 export * from './sortable-behavior';
+export { InteractionBehavior, SwappableBehavior } from './dragdrop';
