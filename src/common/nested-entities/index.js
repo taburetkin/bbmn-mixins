@@ -61,8 +61,20 @@ export default Base => Base.extend({
 		if (this._nestedEntitiesInitialized) {
 			return;
 		}
-		let compiled = betterResult(this, 'nestedEntities', { args: [ this ] });
 		let memo = this._nestedEntities;
+		let additional = this._runtimeNestedEntities;
+		_.each(additional, context => {
+			if (_.isFunction(context)) {
+				context = context.call(this);
+			}
+			if (!context.name) return;
+			if (!isModelClass(context.class) && !isCollectionClass(context.class) ) {
+				return;
+			}
+			memo[context.name] = clone(context, { functions: true });
+		});
+
+		let compiled = betterResult(this, 'nestedEntities', { args: [ this ] });
 		_.each(compiled, (context, key) => {
 			// handle the case where its a runtime function or class definition
 			context = betterResult({ context }, 'context', { args: [key] });
@@ -108,8 +120,37 @@ export default Base => Base.extend({
 	_initEntitiesStore(){
 		if(!_.has(this, '_nestedEntities')){
 			this._nestedEntities = {};
+			this._runtimeNestedEntities = [];
 		}
-	},	
+	},
+	registerNestedEntity(name, context){
+		this._initEntitiesStore();
+		if (this._nestedEntitiesInitialized) {
+			throw new Error('its too late to register nestedEntities, they already initialized');
+		}		
+		if(!name) {
+			throw new Error('Name must be provided');
+		}
+		let toAdd;
+		if (_.isFunction(context)) {
+			let wrapper = function() {
+				let contextInvoked = context.call(this);
+				if (!_.isObject(contextInvoked)) {
+					throw new Error('Context must be an object with name and class properties');
+				}
+				contextInvoked.name = name;
+				return contextInvoked;
+			};
+			toAdd = wrapper;
+		} else if(_.isObject(context)) {
+			context.name = name;
+			toAdd = context;
+		}
+		if (toAdd == null) {
+			throw new Error('nestedEntity Context undefined and failed to register');
+		}
+		this._runtimeNestedEntities.push(toAdd);
+	},
 	_setNestedEntityHandlers(context){
 		let { name, entity } = context;
 		let entityChangeEvents = 'change';
@@ -141,7 +182,8 @@ export default Base => Base.extend({
 			context.onPropertyChange = (instance, _newvalue, { changeInitiator }) => {
 				if (changeInitiator == this) return;
 				changeInitiator == null && (changeInitiator = this);
-				let val = this.get(name) || {};
+				let defaultValue = isCollectionClass(context.class) ? [] : {};
+				let val = this.get(name) || defaultValue;
 				if (isModel(entity) && changeInitiator != entity) {
 					let unset = _.reduce(entity.attributes, (memo, _val, key) => {
 						if(key in val) return memo;
