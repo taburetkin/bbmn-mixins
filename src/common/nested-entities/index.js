@@ -9,6 +9,36 @@ export default Base => Base.extend({
 		return this._getNestedEntity(key, options);
 	},
 
+	registerNestedEntity(name, context){
+		this._initEntitiesStore();
+		if (this._nestedEntitiesInitialized) {
+			throw new Error('its too late to register nestedEntities, they already initialized');
+		}		
+		if(!name) {
+			throw new Error('Name must be provided');
+		}
+		this._runtimeNestedEntities[name] = context;
+		//let toAdd;
+		// if (_.isFunction(context)) {
+		// 	let wrapper = function() {
+		// 		let contextInvoked = context.call(this);
+		// 		if (!_.isObject(contextInvoked)) {
+		// 			throw new Error('Context must be an object with name and class properties');
+		// 		}
+		// 		contextInvoked.name = name;
+		// 		return contextInvoked;
+		// 	};
+		// 	toAdd = wrapper;
+		// } else if(_.isObject(context)) {
+		// 	context.name = name;
+		// 	toAdd = context;
+		// }
+		// if (toAdd == null) {
+		// 	throw new Error('nestedEntity Context undefined and failed to register');
+		// }
+		//this._runtimeNestedEntities.push(toAdd);
+	},
+
 	// override this if you need to do something with just created entity
 	// by default here is settled change handlers
 	setupNestedEntity(context){
@@ -63,6 +93,7 @@ export default Base => Base.extend({
 		}
 		let memo = this._nestedEntities;
 		let additional = this._runtimeNestedEntities;
+		/*
 		_.each(additional, context => {
 			if (_.isFunction(context)) {
 				context = context.call(this);
@@ -73,8 +104,8 @@ export default Base => Base.extend({
 			}
 			memo[context.name] = clone(context, { functions: true });
 		});
-
-		let compiled = betterResult(this, 'nestedEntities', { args: [ this ] });
+		*/
+		let compiled = _.extend({}, additional, betterResult(this, 'nestedEntities', { args: [ this ] }));
 		_.each(compiled, (context, key) => {
 			// handle the case where its a runtime function or class definition
 			context = betterResult({ context }, 'context', { args: [key] });
@@ -120,37 +151,10 @@ export default Base => Base.extend({
 	_initEntitiesStore(){
 		if(!_.has(this, '_nestedEntities')){
 			this._nestedEntities = {};
-			this._runtimeNestedEntities = [];
+			this._runtimeNestedEntities = {};
 		}
 	},
-	registerNestedEntity(name, context){
-		this._initEntitiesStore();
-		if (this._nestedEntitiesInitialized) {
-			throw new Error('its too late to register nestedEntities, they already initialized');
-		}		
-		if(!name) {
-			throw new Error('Name must be provided');
-		}
-		let toAdd;
-		if (_.isFunction(context)) {
-			let wrapper = function() {
-				let contextInvoked = context.call(this);
-				if (!_.isObject(contextInvoked)) {
-					throw new Error('Context must be an object with name and class properties');
-				}
-				contextInvoked.name = name;
-				return contextInvoked;
-			};
-			toAdd = wrapper;
-		} else if(_.isObject(context)) {
-			context.name = name;
-			toAdd = context;
-		}
-		if (toAdd == null) {
-			throw new Error('nestedEntity Context undefined and failed to register');
-		}
-		this._runtimeNestedEntities.push(toAdd);
-	},
+
 	_setNestedEntityHandlers(context){
 		let { name, entity } = context;
 		let entityChangeEvents = 'change';
