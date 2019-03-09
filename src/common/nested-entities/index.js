@@ -162,13 +162,16 @@ export default Base => Base.extend({
 		if (isCollection(entity)) {
 			entityChangeEvents += ' update reset';
 		}
+		let parentEntity = this;
 
 		// if entity get changed outside we should keep in sync this model property value
 		if(!context.onEntityChange){
 			context.onEntityChange = (instance, { changeInitiator } = {}) => {
 				
-				if (changeInitiator == this) return;
 
+				if (changeInitiator == parentEntity) return;
+
+				// if changeInitiator is not set, then entity is source of changes
 				changeInitiator == null && (changeInitiator = entity);
 
 				let json = entity.toJSON();				
@@ -184,11 +187,16 @@ export default Base => Base.extend({
 		// if this model property get changed outside we should keep in sync our nested entity
 		if(!context.onPropertyChange) {
 			context.onPropertyChange = (instance, _newvalue, { changeInitiator }) => {
-				if (changeInitiator == this) return;
-				changeInitiator == null && (changeInitiator = this);
+
+				if (changeInitiator == parentEntity) return;
+
+				changeInitiator == null && (changeInitiator = parentEntity);
+				
 				let defaultValue = isCollectionClass(context.class) ? [] : {};
 				let val = this.get(name) || defaultValue;
-				if (isModel(entity) && changeInitiator != entity) {
+
+				//prev:  != entity
+				if (isModel(entity) && changeInitiator == parentEntity) {
 					let unset = _.reduce(entity.attributes, (memo, _val, key) => {
 						if(key in val) return memo;
 						memo[key] = undefined;
@@ -197,7 +205,9 @@ export default Base => Base.extend({
 					entity.set(_.extend({}, val, unset), { changeInitiator });
 					entity.set(unset, { unset: true, silent: true });
 
-				} else if( isCollection(entity) && changeInitiator != entity) {
+				} 
+				//prev:  != entity
+				else if( isCollection(entity) && changeInitiator == parentEntity) {
 
 					entity.set(val, { changeInitiator });
 

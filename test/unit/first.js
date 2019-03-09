@@ -54,7 +54,7 @@ describe('when having circular dependency', function(){
 		model: STask
 	});
 
-	it.only('should not fall', () => {
+	it('should not fall', () => {
 		let task = new STask({ id: 10 })
 		task.entity('agent');
 		let agent = new SAgent({ id: 1 });
